@@ -1,28 +1,51 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>博客</title>
-    <style>
-        body {
-            font-family: sans-serif;
-            margin: 20px;
-            background-color: #e9f7ef;
-            color: #222;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-        h1 {
-            color: #1e8449;
-        }
-    </style>
+    <title>虚空文集 | Gust-feng</title>
+    <link rel="icon" href="../../image/webtit.jpg">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 </head>
+
 <body>
-    <h1>404</h1>
-    打印机效果文字作为开场白
+    <!-- WebGL 容器 -->
+    <div id="canvas-container"></div>
+
+    <!-- UI 层 -->
+    <div class="ui-layer">
+        <nav class="top-nav">
+            <a href="../../index.html" class="back-btn">
+                <span class="icon">←</span>
+                <span class="text">RETURN</span>
+            </a>
+        </nav>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill"></div>
+        </div>
+
+        <div class="instruction">
+            SCROLL TO FLY
+        </div>
+    </div>
+
+    <!-- 文章详情模态框 (DOM 覆盖) -->
+    <div class="article-modal" id="article-modal">
+        <div class="modal-content">
+            <button class="close-btn" id="close-modal">×</button>
+            <h1 class="modal-title" id="modal-title"></h1>
+            <div class="modal-meta" id="modal-meta"></div>
+            <div class="modal-body" id="modal-body"></div>
+        </div>
+    </div>
+
+    <script src="blog.js"></script>
 </body>
+
 </html>

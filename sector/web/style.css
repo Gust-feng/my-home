@@ -1,0 +1,115 @@
+body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #000;
+    font-family: 'Noto Sans SC', sans-serif;
+    color: #fff;
+}
+
+#canvas-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+.ui-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    pointer-events: none;
+    /* 让鼠标事件穿透到 Canvas */
+}
+
+.top-nav {
+    position: absolute;
+    top: 2rem;
+    left: 2rem;
+    pointer-events: auto;
+}
+
+.back-btn {
+    text-decoration: none;
+    color: rgba(255, 255, 255, 0.6);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    transition: color 0.3s;
+}
+
+.back-btn:hover {
+    color: #fff;
+}
+
+.back-btn .icon {
+    font-size: 1.2rem;
+}
+
+.overlay-info {
+    position: absolute;
+    bottom: 10%;
+    left: 5%;
+    max-width: 400px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.5s ease;
+    pointer-events: auto;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    padding: 2rem;
+    border-left: 2px solid #fff;
+}
+
+.overlay-info.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.site-title {
+    font-size: 2.5rem;
+    font-weight: 100;
+    margin: 0 0 1rem 0;
+    letter-spacing: 2px;
+}
+
+.site-desc {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 2rem;
+}
+
+.visit-btn {
+    display: inline-block;
+    padding: 0.8rem 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #fff;
+    text-decoration: none;
+    font-size: 0.8rem;
+    letter-spacing: 3px;
+    transition: all 0.3s;
+}
+
+.visit-btn:hover {
+    background: #fff;
+    color: #000;
+}
+
+.instruction {
+    position: absolute;
+    bottom: 2rem;
+    width: 100%;
+    text-align: center;
+    font-size: 0.7rem;
+    letter-spacing: 4px;
+    color: rgba(255, 255, 255, 0.3);
+    pointer-events: none;
+}

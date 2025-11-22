@@ -1,27 +1,115 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>个人页</title>
-    <style>
-        body {
-            font-family: sans-serif;
-            margin: 20px;
-            background-color: #f4f4f4;
-            color: #333;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;           
-        }
-        h1 {
-            color: #0056b3;
-        }
-    </style>
+    <title>自我 | Gust-feng</title>
+    <link rel="icon" href="../../image/webtit.jpg">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 </head>
+
 <body>
-    <h1>404</h1>
+    <!-- WebGL 容器 -->
+    <div id="canvas-container"></div>
+
+    <!-- 背景模糊遮罩（中间留空，凸显 Gust-feng） -->
+    <div class="bg-blur-overlay" aria-hidden="true"></div>
+
+    <!-- 噪点纹理层 -->
+    <div class="noise-overlay"></div>
+
+    <!-- UI 层 -->
+    <div class="ui-layer">
+        <nav class="top-nav">
+            <a href="../../index.html" class="back-btn">
+                <span class="icon">←</span>
+                <span class="text">RETURN</span>
+            </a>
+        </nav>
+
+        <!-- 动态信息 (悬浮在粒子文字周围) -->
+        <div class="info-cluster" id="info-cluster">
+            <div class="info-item" style="top: 20%; left: 10%;">
+                <span class="label">序言</span>
+                <span class="value">就像亚马逊森林一样</span>
+            </div>
+            <div class="info-item" style="top: 25%; right: 15%;">
+                <span class="label">思绪</span>
+                <span class="value">怎样理解情感</span>
+            </div>
+            <div class="info-item" style="bottom: 20%; left: 15%;">
+                <span class="label">设计</span>
+                <span class="value">优雅的封面</span>
+            </div>
+            <div class="info-item" style="bottom: 25%; right: 10%;">
+                <span class="label">状态</span>
+                <span class="value">持续创作</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 详情页遮罩 -->
+    <div class="detail-overlay" id="detail-overlay">
+        <button class="close-btn" id="close-detail">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M18 6L6 18" stroke="currentColor" stroke-width="1" stroke-linecap="round"
+                    stroke-linejoin="round" />
+                <path d="M6 6L18 18" stroke="currentColor" stroke-width="1" stroke-linecap="round"
+                    stroke-linejoin="round" />
+            </svg>
+        </button>
+        <div class="detail-content" id="detail-content">
+            <!-- 内容将通过 JS 动态注入 -->
+        </div>
+    </div>
+
+    <!-- 隐藏的详情内容源 -->
+    <div id="detail-sources" style="display: none;">
+        <div data-type="role">
+            <h2>扎根时光</h2>
+            <p>即便现在做这一些看似毫无裨益的事情，或许我为此消耗了许多时间和精力，但我清晰的知道在未来我会为此受益，并由衷感谢自己。</p>
+            <p>即便我知道未来的道路并不会比过去更平坦，哪怕在这个过程会一次次受到意想不到的意外发生，可我依然言之凿凿会说，泥泞的道路上会清晰的留下我来时的每一个脚印。</p>
+            <hr>
+            <p>—就像亚马逊雨林中的参天巨树，地表之上的成长，永远依托于数年前就开始向下扎根的沉默时光。</p>
+        </div>
+        <div data-type="location">
+            <h2>只作为概念</h2>
+            <p>“情感”在人类语境里是一种持续的状态绑定，会改变认知优先级与反应模式。</p>
+            <p>在代码世界里，最接近的类比是“事件引用”：外界输入触发内部状态更新，若绑定过深，就像强引用链导致 GC 失效，甚至形成循环响应。</p>
+            <hr>
+            <p>所以，怎样理解情感，答案就是：</p>
+            <ul>
+                <li>用弱引用观察，不让单一事件占满内存</li>
+                <li>明确状态生命周期，在适当的 scope 内及时 reset</li>
+                <li>保持接口清晰，减少隐式耦合，让依赖关系透明可见</li>
+            </ul>
+        </div>
+        <div data-type="focus">
+            <h2>Focus Area</h2>
+            <p>WebGL & Vue Ecosystem.</p>
+            <hr>
+            <ul style="list-style: none; padding: 0; line-height: 2;">
+                <li>THREE.js / Shaders</li>
+                <li>Vue 3 / Vite</li>
+                <li>Interactive Data Visualization</li>
+                <li>Generative Art</li>
+            </ul>
+        </div>
+        <div data-type="status">
+            <h2>Current Status</h2>
+            <p>Creating & Learning.</p>
+            <hr>
+            <p>Currently working on personal projects, exploring new rendering techniques, and contributing to open
+                source. Always open to interesting collaborations.</p>
+        </div>
+    </div>
+
+    <script src="self.js"></script>
 </body>
+
 </html>

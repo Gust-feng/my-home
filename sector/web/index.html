@@ -1,27 +1,69 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>站点推荐</title>
-    <style>
-        body {
-            font-family: sans-serif;
-            margin: 20px;
-            background-color: #fef9e7;
-            color: #444;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;           
-        }
-        h1 {
-            color: #d35400;
-        }
-    </style>
+    <title>星云 | Gust-feng</title>
+    <link rel="icon" href="../../image/webtit.jpg">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@100;300;400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <!-- 引入 Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 </head>
+
 <body>
-    <h1>404</h1>
+    <!-- WebGL 容器 -->
+    <div id="canvas-container"></div>
+
+    <!-- UI 层 (悬浮在 Canvas 之上) -->
+    <div class="ui-layer">
+        <nav class="top-nav">
+            <a href="../../index.html" class="back-btn">
+                <span class="icon">←</span>
+                <span class="text">RETURN</span>
+            </a>
+        </nav>
+
+        <div class="overlay-info" id="site-info">
+            <h2 class="site-title"></h2>
+            <p class="site-desc"></p>
+            <a href="#" target="_blank" class="visit-btn">VISIT <i class="fas fa-external-link-alt"></i></a>
+        </div>
+
+        <div class="instruction">
+            HOVER TO DISPERSE · CLICK TO EXPLORE
+        </div>
+    </div>
+
+    <!-- 顶点着色器 -->
+    <script type="x-shader/x-vertex" id="vertexshader">
+        attribute float size;
+        attribute vec3 customColor;
+        varying vec3 vColor;
+        void main() {
+            vColor = customColor;
+            vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+            gl_PointSize = size * ( 300.0 / -mvPosition.z );
+            gl_Position = projectionMatrix * mvPosition;
+        }
+    </script>
+
+    <!-- 片元着色器 -->
+    <script type="x-shader/x-fragment" id="fragmentshader">
+        uniform vec3 color;
+        uniform sampler2D pointTexture;
+        varying vec3 vColor;
+        void main() {
+            gl_FragColor = vec4( color * vColor, 1.0 );
+            gl_FragColor = gl_FragColor * texture2D( pointTexture, gl_PointCoord );
+            if ( gl_FragColor.a < 0.1 ) discard;
+        }
+    </script>
+
+    <script src="web.js"></script>
 </body>
+
 </html>

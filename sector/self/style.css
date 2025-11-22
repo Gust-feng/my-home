@@ -1,0 +1,422 @@
+body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #f2f4f6;
+    font-family: 'Noto Serif SC', serif;
+    color: #1d1d1f;
+    height: 100vh;
+    width: 100vw;
+}
+
+:root {
+    --bg-blur: 12px;
+    --ink-strong: #111117;
+}
+
+#canvas-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 4;
+}
+
+.bg-blur-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    backdrop-filter: blur(var(--bg-blur));
+    -webkit-backdrop-filter: blur(var(--bg-blur));
+    transition: backdrop-filter 1.2s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+/* Noise Overlay */
+.noise-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 5;
+    opacity: 0.05;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+.ui-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 6;
+    pointer-events: none;
+}
+
+.top-nav {
+    position: absolute;
+    top: 3rem;
+    left: 3rem;
+    pointer-events: auto;
+    z-index: 10;
+}
+
+.back-btn {
+    text-decoration: none;
+    color: #1d1d1f;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    font-size: 0.75rem;
+    letter-spacing: 3px;
+    font-weight: 300;
+    opacity: 0.5;
+    transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+    mix-blend-mode: difference;
+}
+
+.back-btn:hover {
+    opacity: 1;
+    transform: translateX(-5px);
+}
+
+.info-cluster {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.info-item {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    opacity: 0;
+    filter: blur(10px);
+    transform: translateY(10px) scale(0.985);
+    animation: blurHold 2.4s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+    cursor: pointer;
+    transition: filter 1.5s cubic-bezier(0.19, 1, 0.22, 1), opacity 1s cubic-bezier(0.19, 1, 0.22, 1), transform 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+    pointer-events: auto;
+    will-change: filter, opacity, transform;
+}
+
+.info-item,
+.info-item * {
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.info-item:nth-child(1) {
+    animation-delay: 0.4s;
+}
+
+.info-item:nth-child(2) {
+    animation-delay: 0.7s;
+}
+
+.info-item:nth-child(3) {
+    animation-delay: 1s;
+}
+
+.info-item:nth-child(4) {
+    animation-delay: 1.3s;
+}
+
+@keyframes blurHold {
+    from {
+        opacity: 0;
+        filter: blur(14px);
+        transform: translateY(24px) scale(0.96);
+    }
+
+    to {
+        opacity: 1;
+        filter: blur(10px);
+        transform: translateY(0) scale(1);
+    }
+}
+
+.info-item.revealed {
+    filter: blur(0);
+    opacity: 1;
+    animation: none;
+    transform: translateY(0);
+}
+
+/* Minimalist annotation-style label */
+.info-item .label {
+    font-size: 0.55rem;
+    letter-spacing: 6px;
+    color: rgba(18, 18, 22, 0.82);
+    margin-bottom: 0.6rem;
+    text-transform: uppercase;
+    font-weight: 200;
+    position: relative;
+    transition: all 0.4s ease;
+}
+
+/* Subtle dot instead of line */
+.info-item .label::before {
+    content: '';
+    position: absolute;
+    left: -12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background-color: #0f1013;
+    opacity: 0.55;
+    transition: all 0.4s ease;
+}
+
+/* Refined typography - rhythm through size variation */
+.info-item .value {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 1.4rem;
+    font-weight: 500;
+    color: #040508;
+    letter-spacing: 1px;
+    transition: all 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+    text-shadow: 0 10px 36px rgba(12, 13, 16, 0.22);
+    opacity: 1;
+}
+
+/* Create visual rhythm through varied sizes */
+.info-item:nth-child(1) .value {
+    font-size: 1.5rem;
+    font-weight: 250;
+}
+
+.info-item:nth-child(2) .value {
+    font-size: 1.3rem;
+}
+
+.info-item:nth-child(3) .value {
+    font-size: 1.6rem;
+    font-weight: 250;
+}
+
+.info-item:nth-child(4) .value {
+    font-size: 1.2rem;
+}
+
+/* Hover: subtle letter-spacing spread */
+.info-item.revealed:hover {
+    transform: none;
+    filter: blur(0);
+}
+
+.info-item.revealed:hover .value {
+    letter-spacing: 1px;
+    opacity: 1;
+    color: #040508;
+    text-shadow: 0 10px 36px rgba(12, 13, 16, 0.22);
+}
+
+.info-item.revealed:hover .label {
+    opacity: 0.7;
+    color: rgba(18, 18, 22, 0.72);
+}
+
+.info-item.revealed:hover .label::before {
+    opacity: 0.45;
+    transform: translateY(-50%) scale(1.1);
+}
+
+/* Subtle hover aura without moving text */
+.info-item .value {
+    position: relative;
+    display: inline-block;
+}
+
+.info-item.revealed .value::after {
+    content: '';
+    position: absolute;
+    left: -2px;
+    right: -2px;
+    bottom: -6px;
+    height: 1px;
+    background: #000;
+    opacity: 0;
+    transition: opacity 0.38s cubic-bezier(0.22, 1, 0.36, 1), transform 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+    transform: scaleX(0);
+    transform-origin: center;
+    pointer-events: none;
+    z-index: 0;
+    will-change: transform, opacity;
+}
+
+.info-item.revealed:hover .value::after {
+    opacity: 1;
+    transform: scaleX(1);
+}
+
+/* Avoid flicker when blurred: lock hover visuals before reveal */
+.info-item:not(.revealed):hover,
+.info-item:not(.revealed):focus-visible {
+    transform: translateY(10px) scale(0.985);
+    filter: blur(10px);
+}
+
+.info-item:not(.revealed):hover .value,
+.info-item:not(.revealed):focus-visible .value {
+    letter-spacing: 1px;
+    opacity: 1;
+}
+
+.info-item:not(.revealed):hover .label,
+.info-item:not(.revealed):focus-visible .label {
+    opacity: 1;
+    color: rgba(18, 18, 22, 0.82);
+}
+
+.info-item:not(.revealed):hover .label::before,
+.info-item:not(.revealed):focus-visible .label::before {
+    opacity: 0.55;
+    transform: translateY(-50%) scale(1);
+}
+
+/* Detail Overlay */
+.detail-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 100;
+    background: rgba(242, 244, 246, 0.85);
+    backdrop-filter: blur(25px) saturate(100%);
+    -webkit-backdrop-filter: blur(25px) saturate(100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.detail-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.detail-content {
+    max-width: 550px;
+    width: 80%;
+    padding: 4rem;
+    background: transparent;
+    box-shadow: none;
+    transform: translateY(30px);
+    transition: transform 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+    text-align: center;
+    position: relative;
+    border: none;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.detail-overlay.active .detail-content {
+    transform: translateY(0);
+}
+
+.detail-content h2 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 2.2rem;
+    font-weight: 300;
+    margin-bottom: 1.5rem;
+    letter-spacing: 4px;
+    color: #1d1d1f;
+}
+
+.detail-content p {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 1.05rem;
+    line-height: 2;
+    color: #4a4a4a;
+    margin-bottom: 2rem;
+    font-weight: 300;
+    /* 防止中文词组被分割 */
+    word-break: keep-all;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+}
+
+.detail-content ul,
+.detail-content ol {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 1.05rem;
+    line-height: 2;
+    color: #4a4a4a;
+    font-weight: 300;
+    padding-left: 1.5rem;
+    margin: 1rem 0 2rem 0;
+}
+
+.detail-content ol li {
+    margin-bottom: 0.5rem;
+}
+
+.detail-content hr {
+    border: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.2), transparent);
+    width: 100px;
+    margin: 2.5rem auto;
+}
+
+.close-btn {
+    position: absolute;
+    top: 3rem;
+    right: 3rem;
+    background: none;
+    border: none;
+    color: #1d1d1f;
+    cursor: pointer;
+    opacity: 0.4;
+    transition: all 0.4s ease;
+    z-index: 101;
+    padding: 10px;
+}
+
+.close-btn svg {
+    width: 32px;
+    height: 32px;
+}
+
+.close-btn:hover {
+    opacity: 1;
+    transform: rotate(90deg) scale(1.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .top-nav {
+        top: 2rem;
+        left: 2rem;
+    }
+
+    .info-item .value {
+        font-size: 1.1rem !important;
+    }
+
+    .info-item .label {
+        font-size: 0.35rem;
+    }
+
+    .detail-content {
+        padding: 2rem;
+        width: 90%;
+    }
+
+    .detail-content h2 {
+        font-size: 1.5rem;
+    }
+}
