@@ -1197,7 +1197,7 @@ body {
     transform: translateX(-50%);
     padding: 12px 25px; 
     font-size: 1.4rem; 
-    font-family: 'Ma Shan Zheng', 'Noto Serif SC', serif;
+    font-family: 'STKaiti', 'KaiTi', 'FangSong', serif;
     z-index: 2000;
     text-align: center;
     pointer-events: none; 

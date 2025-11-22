@@ -130,7 +130,7 @@ const app = createApp({
 
         const leftClickTimestamps = ref([]);
         const showLeftClickMessage = ref(false);
-        const leftClickMessageText = ref("艺术源于生活");
+        const leftClickMessageText = ref("金鳞岂是池中物，一遇风云便化龙");
         let leftMsgTimer = null;
 
         // 一言更新回调函数
