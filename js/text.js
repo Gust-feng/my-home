@@ -8,12 +8,11 @@ window.textManager = (function() {
     // 验证有效的API配置
     const hitokotoAPIs = [
         {
-            url: 'https://v1.hitokoto.cn/?encode=json&charset=utf-8',
-            parser: (data) => `${data.hitokoto} —— ${data.from || '未知'}`
-        },
-        {
-            url: 'https://international.v1.hitokoto.cn/?encode=json&charset=utf-8',
-            parser: (data) => `${data.hitokoto} —— ${data.from || '未知'}`
+            url: 'https://api.pwxiao.top/',
+            parser: (data) => {
+                const fromText = data.from_who ? `${data.from} · ${data.from_who}` : (data.from || '未知');
+                return `${data.hitokoto} —— ${fromText}`;
+            }
         }
     ];
 
@@ -46,24 +45,31 @@ window.textManager = (function() {
     async function callAPI(apiConfigs, fallbackContent) {
         for (const config of apiConfigs) {
             try {
+                console.log(`尝试调用API: ${config.url}`);
                 const response = await fetch(config.url, {
                     method: 'GET',
-                    mode: 'cors',
-                    headers: { 'Accept': 'application/json' },
-                    timeout: 5000
+                    headers: { 'Accept': 'application/json' }
                 });
                 
-                if (!response.ok) continue;
+                console.log(`API响应状态: ${response.status} ${response.statusText}`);
+                if (!response.ok) {
+                    console.warn(`API响应不正常: ${response.status}`);
+                    continue;
+                }
                 
                 const data = await response.json();
-                return config.parser(data);
+                console.log('API数据接收成功:', data);
+                const result = config.parser(data);
+                console.log('解析结果:', result);
+                return result;
                 
             } catch (error) {
-                console.warn(`API调用失败 ${config.url}:`, error.message);
+                console.error(`API调用失败 ${config.url}:`, error);
                 continue;
             }
         }
         
+        console.warn('所有API调用失败，使用备用内容');
         // 所有API失败，返回备用内容
         return Array.isArray(fallbackContent) 
             ? fallbackContent[Math.floor(Math.random() * fallbackContent.length)]
