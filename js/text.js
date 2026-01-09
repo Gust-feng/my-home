@@ -1,14 +1,14 @@
 // js/text.js - 优化的文本内容管理器
 
-window.textManager = (function() {
+window.textManager = (function () {
     let currentHitokoto = "正在获取一言...";
     let currentPoem = "加载中...";
     let hitokotoCallbacks = [];
-    
+
     // 验证有效的API配置
     const hitokotoAPIs = [
         {
-            url: 'https://api.pwxiao.top/',
+            url: 'https://v1.hitokoto.cn/?encode=json',
             parser: (data) => {
                 const fromText = data.from_who ? `${data.from} · ${data.from_who}` : (data.from || '未知');
                 return `${data.hitokoto} —— ${fromText}`;
@@ -50,28 +50,28 @@ window.textManager = (function() {
                     method: 'GET',
                     headers: { 'Accept': 'application/json' }
                 });
-                
+
                 console.log(`API响应状态: ${response.status} ${response.statusText}`);
                 if (!response.ok) {
                     console.warn(`API响应不正常: ${response.status}`);
                     continue;
                 }
-                
+
                 const data = await response.json();
                 console.log('API数据接收成功:', data);
                 const result = config.parser(data);
                 console.log('解析结果:', result);
                 return result;
-                
+
             } catch (error) {
                 console.error(`API调用失败 ${config.url}:`, error);
                 continue;
             }
         }
-        
+
         console.warn('所有API调用失败，使用备用内容');
         // 所有API失败，返回备用内容
-        return Array.isArray(fallbackContent) 
+        return Array.isArray(fallbackContent)
             ? fallbackContent[Math.floor(Math.random() * fallbackContent.length)]
             : fallbackContent;
     }
@@ -79,10 +79,10 @@ window.textManager = (function() {
     // 通知回调函数
     function notifyCallbacks(text) {
         hitokotoCallbacks.forEach(callback => {
-            try { 
-                callback(text); 
-            } catch (e) { 
-                console.error('回调执行错误:', e); 
+            try {
+                callback(text);
+            } catch (e) {
+                console.error('回调执行错误:', e);
             }
         });
     }
@@ -121,7 +121,7 @@ window.textManager = (function() {
         fetchPoem,
         getCurrentHitokoto: () => currentHitokoto,
         getCurrentPoem: () => currentPoem,
-        
+
         // 兼容性方法
         getRandomPoem: async () => {
             try {
@@ -130,15 +130,15 @@ window.textManager = (function() {
                 return fallbackPoems[Math.floor(Math.random() * fallbackPoems.length)];
             }
         },
-        
+
         fetchAndCachePoems: async () => await fetchPoem(),
-        
+
         onHitokotoUpdate: (callback) => {
             if (typeof callback === 'function') {
                 hitokotoCallbacks.push(callback);
             }
         },
-        
+
         removeHitokotoCallback: (callback) => {
             const index = hitokotoCallbacks.indexOf(callback);
             if (index > -1) hitokotoCallbacks.splice(index, 1);

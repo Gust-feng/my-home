@@ -3,9 +3,11 @@ body {
     padding: 0;
     overflow: hidden;
     background-color: #050505;
-    /* 深邃黑 */
+    /* Pure Black/Deepest Grey */
     font-family: 'Noto Serif SC', serif;
-    color: #fff;
+    color: #ffffff;
+    height: 100vh;
+    width: 100vw;
 }
 
 #canvas-container {
@@ -17,21 +19,35 @@ body {
     z-index: 1;
 }
 
+/* Noise Overlay - Very subtle */
+.noise-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 3;
+    opacity: 0.04;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
 .ui-layer {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 2;
+    z-index: 4;
     pointer-events: none;
 }
 
 .top-nav {
     position: absolute;
-    top: 2rem;
-    left: 2rem;
+    top: 3rem;
+    left: 3rem;
     pointer-events: auto;
+    z-index: 10;
 }
 
 .back-btn {
@@ -39,15 +55,18 @@ body {
     color: #fff;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    font-size: 0.8rem;
-    letter-spacing: 2px;
-    opacity: 0.6;
-    transition: opacity 0.3s;
+    gap: 0.8rem;
+    font-size: 0.75rem;
+    letter-spacing: 3px;
+    font-weight: 300;
+    opacity: 0.5;
+    transition: all 0.4s ease;
+    mix-blend-mode: difference;
 }
 
 .back-btn:hover {
     opacity: 1;
+    transform: translateX(-5px);
 }
 
 .progress-bar {
@@ -55,8 +74,8 @@ body {
     bottom: 2rem;
     left: 50%;
     transform: translateX(-50%);
-    width: 200px;
-    height: 2px;
+    width: 150px;
+    height: 1px;
     background: rgba(255, 255, 255, 0.1);
 }
 
@@ -65,6 +84,7 @@ body {
     height: 100%;
     background: #fff;
     transition: width 0.1s;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
 }
 
 .instruction {
@@ -72,9 +92,12 @@ body {
     bottom: 3rem;
     width: 100%;
     text-align: center;
-    font-size: 0.6rem;
-    letter-spacing: 4px;
+    font-family: 'Noto Serif SC', serif;
+    font-size: 0.5rem;
+    letter-spacing: 6px;
     color: rgba(255, 255, 255, 0.3);
+    text-transform: uppercase;
+    font-weight: 200;
 }
 
 /* 模态框 */
@@ -84,14 +107,17 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.9);
-    z-index: 10;
+    background: rgba(5, 5, 5, 0.95);
+    /* Almost opaque for focus */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 100;
     display: flex;
     justify-content: center;
     align-items: center;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.5s;
+    transition: opacity 0.5s cubic-bezier(0.19, 1, 0.22, 1);
 }
 
 .article-modal.active {
@@ -100,42 +126,77 @@ body {
 }
 
 .modal-content {
-    width: 800px;
-    max-width: 90%;
+    width: 700px;
+    max-width: 85%;
     max-height: 80vh;
-    background: #111;
-    border: 1px solid #333;
+    background: transparent;
+    border: none;
     padding: 4rem;
     overflow-y: auto;
     position: relative;
-    color: #ddd;
+    color: #e0e0e0;
+    transform: translateY(20px);
+    transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.article-modal.active .modal-content {
+    transform: translateY(0);
 }
 
 .close-btn {
     position: absolute;
-    top: 1rem;
-    right: 1rem;
+    top: 2rem;
+    right: 2rem;
     background: none;
     border: none;
-    color: #fff;
+    color: #666;
     font-size: 2rem;
     cursor: pointer;
+    opacity: 0.6;
+    transition: all 0.3s ease;
+}
+
+.close-btn:hover {
+    opacity: 1;
+    transform: rotate(90deg);
+    color: #fff;
 }
 
 .modal-title {
+    font-family: 'Noto Serif SC', serif;
     font-size: 2.5rem;
     margin-bottom: 1rem;
     color: #fff;
+    font-weight: 300;
+    letter-spacing: 2px;
 }
 
 .modal-meta {
     color: #666;
-    margin-bottom: 2rem;
-    font-size: 0.9rem;
+    margin-bottom: 3rem;
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 300;
 }
 
 .modal-body {
-    line-height: 1.8;
+    line-height: 2;
     font-size: 1.1rem;
     text-align: justify;
+    font-weight: 300;
+    color: #ccc;
+}
+
+/* Scrollbar styling */
+.modal-content::-webkit-scrollbar {
+    width: 2px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
 }

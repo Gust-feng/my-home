@@ -4,6 +4,7 @@ let scrollZ = 0;
 let targetScrollZ = 0;
 let raycaster, mouse;
 let hoveredMesh = null;
+let ashParticles;
 
 const articles = [
     { title: 'The Void', date: '2025.03', content: 'Entering the digital void, where thoughts float like dust in a sunbeam...' },
@@ -23,31 +24,31 @@ function init() {
     const container = document.getElementById('canvas-container');
 
     scene = new THREE.Scene();
-    // 迷雾，营造深邃感
-    scene.fog = new THREE.FogExp2(0x050505, 0.002);
+    // Tuned Fog for "Zoom" depth - slightly denser to hide the end
+    scene.fog = new THREE.FogExp2(0x050505, 0.0025);
 
-    camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 2000);
+    camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 3000);
     camera.position.z = 1000;
 
-    // 文章组
+    // Article Group
     articlesGroup = new THREE.Group();
     scene.add(articlesGroup);
 
-    // 创建文章面板
+    // Create Minimalist Panels
     articles.forEach((article, index) => {
-        const mesh = createArticlePanel(article, index);
+        const mesh = createMinimalistPanel(article, index);
         articlesGroup.add(mesh);
     });
 
-    // 悬浮尘埃粒子
-    createDust();
+    // Subtle Ash Particles
+    createSubtleAshParticles();
 
     renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
     container.appendChild(renderer.domElement);
 
-    // 交互
+    // Interaction
     raycaster = new THREE.Raycaster();
     mouse = new THREE.Vector2();
 
@@ -56,52 +57,53 @@ function init() {
     window.addEventListener('click', onClick, false);
     window.addEventListener('resize', onWindowResize, false);
 
-    // 模态框关闭
+    // Modal Close
     document.getElementById('close-modal').addEventListener('click', () => {
         document.getElementById('article-modal').classList.remove('active');
     });
 }
 
-function createArticlePanel(article, index) {
+function createMinimalistPanel(article, index) {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
-    canvas.width = 512;
-    canvas.height = 256;
+    canvas.width = 1024;
+    canvas.height = 512;
 
-    // 半透明背景
-    ctx.fillStyle = 'rgba(20, 20, 20, 0.8)';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // No background fill - Pure Transparency
 
-    // 边框
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(0, 0, canvas.width, canvas.height);
-
-    // 文字
-    ctx.font = 'bold 40px "Noto Serif SC"';
-    ctx.fillStyle = 'white';
+    // Text - High Contrast White
     ctx.textAlign = 'center';
-    ctx.fillText(article.title, canvas.width / 2, 100);
 
-    ctx.font = '24px "Noto Serif SC"';
-    ctx.fillStyle = '#888';
-    ctx.fillText(article.date, canvas.width / 2, 160);
+    // Title
+    ctx.font = '300 90px "Noto Serif SC"';
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(article.title, canvas.width / 2, 220);
 
+    // Date
+    ctx.font = '300 40px "Noto Serif SC"';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+    ctx.fillText(article.date, canvas.width / 2, 320);
+
+    // Texture
     const texture = new THREE.CanvasTexture(canvas);
-    const geometry = new THREE.PlaneGeometry(300, 150);
+    texture.minFilter = THREE.LinearFilter;
+    texture.magFilter = THREE.LinearFilter;
+
+    const geometry = new THREE.PlaneGeometry(450, 225);
     const material = new THREE.MeshBasicMaterial({
         map: texture,
         transparent: true,
-        opacity: 0.6,
-        side: THREE.DoubleSide
+        opacity: 0.9,
+        side: THREE.DoubleSide,
+        depthWrite: false
     });
 
     const mesh = new THREE.Mesh(geometry, material);
 
-    // 螺旋排列
+    // Spiral Layout (Classic 3D Structure)
     const angle = index * 0.8;
-    const radius = 300;
-    const z = index * -400; // 纵深排列
+    const radius = 350;
+    const z = index * -400;
 
     mesh.position.set(
         Math.cos(angle) * radius,
@@ -109,39 +111,67 @@ function createArticlePanel(article, index) {
         z
     );
 
-    // 面向摄像机中心路径
+    // Look at camera center axis
     mesh.lookAt(0, 0, mesh.position.z + 1000);
 
-    mesh.userData = { article: article, originalScale: 1 };
+    mesh.userData = {
+        article: article,
+        originalPos: mesh.position.clone(),
+        originalScale: mesh.scale.clone()
+    };
 
     return mesh;
 }
 
-function createDust() {
+function createSubtleAshParticles() {
     const geometry = new THREE.BufferGeometry();
     const vertices = [];
-    for (let i = 0; i < 2000; i++) {
+    const sizes = [];
+
+    for (let i = 0; i < 1500; i++) {
         vertices.push(
-            (Math.random() - 0.5) * 2000,
-            (Math.random() - 0.5) * 2000,
-            (Math.random() - 0.5) * 10000 - 5000 // 延伸到远处
+            (Math.random() - 0.5) * 3000,
+            (Math.random() - 0.5) * 3000,
+            (Math.random() - 0.5) * 10000 - 2000
         );
+        sizes.push(Math.random() * 3 + 1);
     }
+
     geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-    const material = new THREE.PointsMaterial({ color: 0x888888, size: 2, transparent: true, opacity: 0.5 });
-    const points = new THREE.Points(geometry, material);
-    scene.add(points);
+    geometry.setAttribute('size', new THREE.Float32BufferAttribute(sizes, 1));
+
+    // Soft circle texture
+    const canvas = document.createElement('canvas');
+    canvas.width = 32; canvas.height = 32;
+    const ctx = canvas.getContext('2d');
+    const grad = ctx.createRadialGradient(16, 16, 0, 16, 16, 16);
+    grad.addColorStop(0, 'rgba(255, 255, 255, 0.5)'); // Lower opacity
+    grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 32, 32);
+    const texture = new THREE.CanvasTexture(canvas);
+
+    const material = new THREE.PointsMaterial({
+        color: 0x888888, // Greyer, less intrusive
+        size: 3,
+        map: texture,
+        transparent: true,
+        opacity: 0.4, // Very subtle
+        sizeAttenuation: true,
+        depthWrite: false
+    });
+
+    ashParticles = new THREE.Points(geometry, material);
+    scene.add(ashParticles);
 }
 
 function onWheel(event) {
-    // 滚轮控制 Z 轴推进
-    targetScrollZ -= event.deltaY * 2;
+    // Snappy scroll - Direct mapping with less smoothing later
+    targetScrollZ -= event.deltaY * 2.5;
 
-    // 限制回滚
+    // Strict Clamping
     if (targetScrollZ > 0) targetScrollZ = 0;
-
-    // 限制最远距离
-    const maxZ = (articles.length - 1) * 400 + 1000;
+    const maxZ = (articles.length - 1) * 400 + 1200; // Tighter end limit
     if (targetScrollZ < -maxZ) targetScrollZ = -maxZ;
 }
 
@@ -173,45 +203,66 @@ function onWindowResize() {
 function animate() {
     requestAnimationFrame(animate);
 
-    // 平滑摄像机移动
-    scrollZ += (targetScrollZ - scrollZ) * 0.05;
+    const time = Date.now() * 0.001;
+
+    // Snappy Camera Movement
+    // Increased lerp factor from 0.06 to 0.15 for tighter control
+    scrollZ += (targetScrollZ - scrollZ) * 0.15;
     camera.position.z = 1000 + scrollZ;
 
-    // 摄像机轻微晃动，模拟飞行
-    camera.position.x += (mouse.x * 100 - camera.position.x) * 0.05;
-    camera.position.y += (mouse.y * 100 - camera.position.y) * 0.05;
+    // Camera gentle float - Reduced amplitude for stability
+    camera.position.y += Math.sin(time * 0.3) * 0.05;
 
-    // Raycaster 检测
+    // Mouse Parallax - Tighter, less floaty
+    const targetCamX = mouse.x * 40; // Reduced range
+    const targetCamY = mouse.y * 40;
+    camera.position.x += (targetCamX - camera.position.x) * 0.1; // Snappier follow
+    camera.position.y += (targetCamY - camera.position.y) * 0.1;
+
+    // Raycaster
     raycaster.setFromCamera(mouse, camera);
     const intersects = raycaster.intersectObjects(articlesGroup.children);
 
     if (intersects.length > 0) {
         const object = intersects[0].object;
         if (hoveredMesh !== object) {
-            // 恢复上一个
-            if (hoveredMesh) {
-                gsap.to(hoveredMesh.scale, { x: 1, y: 1, duration: 0.3 });
-                gsap.to(hoveredMesh.material, { opacity: 0.6, duration: 0.3 });
-            }
-            // 高亮当前
             hoveredMesh = object;
-            gsap.to(hoveredMesh.scale, { x: 1.2, y: 1.2, duration: 0.3 });
-            gsap.to(hoveredMesh.material, { opacity: 1, duration: 0.3 });
             document.body.style.cursor = 'pointer';
         }
     } else {
-        if (hoveredMesh) {
-            gsap.to(hoveredMesh.scale, { x: 1, y: 1, duration: 0.3 });
-            gsap.to(hoveredMesh.material, { opacity: 0.6, duration: 0.3 });
-            hoveredMesh = null;
-            document.body.style.cursor = 'default';
-        }
+        hoveredMesh = null;
+        document.body.style.cursor = 'default';
     }
 
-    // 进度条
+    // Update Articles (No Repulsion, Snappy Hover)
+    articlesGroup.children.forEach(mesh => {
+        const isHovered = (mesh === hoveredMesh);
+
+        // 1. No Repulsion - Fixed Position
+        // We only apply the idle float
+        const idleY = Math.sin(time + mesh.position.z * 0.01) * 0.2;
+        mesh.position.y = mesh.userData.originalPos.y + idleY;
+        mesh.position.x = mesh.userData.originalPos.x; // Strict X lock
+
+        // 2. Snappy Hover Scale
+        // Using a simple lerp with a high factor for "instant" feel but still smooth
+        const targetScale = isHovered ? 1.15 : 1.0;
+        const targetOpacity = isHovered ? 1.0 : 0.85;
+
+        mesh.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.2);
+        mesh.material.opacity += (targetOpacity - mesh.material.opacity) * 0.2;
+    });
+
+    // Update Ash Particles
+    if (ashParticles) {
+        ashParticles.position.z = scrollZ * 0.8; // Parallax
+    }
+
+    // Progress Bar
     const maxZ = (articles.length - 1) * 400;
     const progress = Math.abs(scrollZ) / maxZ;
-    document.getElementById('progress-fill').style.width = `${Math.min(progress * 100, 100)}%`;
+    const progressBar = document.getElementById('progress-fill');
+    if (progressBar) progressBar.style.width = `${Math.min(progress * 100, 100)}%`;
 
     renderer.render(scene, camera);
 }
